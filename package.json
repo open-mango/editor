@@ -34,8 +34,26 @@
     "trailingComma": "es5"
   },
   "name": "mango-plugins-editor",
-  "author": "wecanooo",
   "module": "dist/mango-plugins-editor.esm.js",
+  "author": {
+    "name": "Kwangwoo, Jang",
+    "email": "wecanooo@gmail.com",
+    "url": "https://about.me/wecanooo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-mango/editor.git"
+  },
+  "keywords": [
+    "editor",
+    "wysiwyg",
+    "draft",
+    "react",
+    "typescript",
+    "components",
+    "widget",
+    "react-hooks"
+  ],
   "size-limit": [
     {
       "path": "dist/mango-plugins-editor.cjs.production.min.js",
