@@ -6,25 +6,20 @@
  * 하지만, 분석용으로 괜찮을 것 같아서 소스에서 제거하지는 않음
  */
 
-import {
-  EditorState,
-  RichUtils,
-  Modifier,
-  SelectionState,
-} from 'draft-js'
+import { EditorState, RichUtils, Modifier, SelectionState, } from 'draft-js';
 
 export function getSelectedBlockMap(editorState: EditorState) {
-  const selectionState = editorState.getSelection()
-  const contentState = editorState.getCurrentContent()
-  const startKey = selectionState.getStartKey()
-  const endKey = selectionState.getEndKey()
-  const blockMap = contentState.getBlockMap()
+  const selectionState = editorState.getSelection();
+  const contentState = editorState.getCurrentContent();
+  const startKey = selectionState.getStartKey();
+  const endKey = selectionState.getEndKey();
+  const blockMap = contentState.getBlockMap();
 
   return blockMap
     .toSeq()
     .skipUntil((_, k) => k === startKey)
     .takeUntil((_, k) => k === endKey)
-    .concat([[endKey, blockMap.get(endKey)]])
+    .concat([[endKey, blockMap.get(endKey)]]);
 }
 
 /**
@@ -33,7 +28,7 @@ export function getSelectedBlockMap(editorState: EditorState) {
  * @returns List<ContentBlock>
  */
 export function getSelectedBlocksList(editorState: EditorState) {
-  return getSelectedBlockMap(editorState).toList()
+  return getSelectedBlockMap(editorState).toList();
 }
 
 /**
@@ -42,8 +37,8 @@ export function getSelectedBlocksList(editorState: EditorState) {
  * @returns ContentBlock | undefined
  */
 export function getSelectedBlock(editorState: EditorState) {
-  if (editorState) return getSelectedBlocksList(editorState).get(0)
-  return undefined
+  if (editorState) return getSelectedBlocksList(editorState).get(0);
+  return undefined;
 }
 
 /**
@@ -53,26 +48,26 @@ export function getSelectedBlock(editorState: EditorState) {
  */
 export function getBlockBeforeSelectedBlock(editorState: EditorState) {
   if (editorState) {
-    const selectedBlock = getSelectedBlock(editorState)
-    const contentState = editorState.getCurrentContent()
+    const selectedBlock = getSelectedBlock(editorState);
+    const contentState = editorState.getCurrentContent();
     const blockList = contentState
       .getBlockMap()
       .toSeq()
-      .toList()
-    let previousIndex = 0
+      .toList();
+    let previousIndex = 0;
 
     blockList.forEach((block, index) => {
       if (block?.get('key') === selectedBlock?.get('key')) {
-        previousIndex = index || 0 - 1
+        previousIndex = index || 0 - 1;
       }
     })
 
     if (previousIndex > -1) {
-      return blockList.get(previousIndex)
+      return blockList.get(previousIndex);
     }
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -84,7 +79,7 @@ export function getAllBlocks(editorState: EditorState) {
   return editorState
     .getCurrentContent()
     .getBlockMap()
-    .toList()
+    .toList();
 }
 
 /**
@@ -93,16 +88,16 @@ export function getAllBlocks(editorState: EditorState) {
  * @returns string
  */
 export function getSelectedBlocksType(editorState: EditorState) {
-  const blocks = getSelectedBlocksList(editorState)
+  const blocks = getSelectedBlocksList(editorState);
   const hasMultipleBlockTypes = blocks.some(
     block => block?.getType() !== blocks.get(0).getType()
-  )
+  );
 
   if (!hasMultipleBlockTypes) {
-    return blocks.get(0).getType()
+    return blocks.get(0).getType();
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -113,12 +108,12 @@ export function getSelectedBlocksType(editorState: EditorState) {
  * @returns EditorState
  */
 export function removeSelectedBlocksStyle(editorState: EditorState) {
-  const newContentState = RichUtils.tryToRemoveBlockStyle(editorState)
+  const newContentState = RichUtils.tryToRemoveBlockStyle(editorState);
   if (newContentState) {
-    return EditorState.push(editorState, newContentState, 'change-block-type')
+    return EditorState.push(editorState, newContentState, 'change-block-type');
   }
 
-  return editorState
+  return editorState;
 }
 
 /**
@@ -127,49 +122,49 @@ export function removeSelectedBlocksStyle(editorState: EditorState) {
  * @returns string
  */
 export function getSelectionText(editorState: EditorState) {
-  let selectedText = ''
-  const currentSelection = editorState.getSelection()
-  let start = currentSelection.getAnchorOffset()
-  let end = currentSelection.getFocusOffset()
-  const selectedBlocks = getSelectedBlocksList(editorState)
+  let selectedText = '';
+  const currentSelection = editorState.getSelection();
+  let start = currentSelection.getAnchorOffset();
+  let end = currentSelection.getFocusOffset();
+  const selectedBlocks = getSelectedBlocksList(editorState);
   if (selectedBlocks.size > 0) {
     if (currentSelection.getIsBackward()) {
-      const temp = start
-      start = end
-      end = temp
+      const temp = start;
+      start = end;
+      end = temp;
     }
 
     for (let i = 0; i < selectedBlocks.size; i += 1) {
-      const blockStart = i === 0 ? start : 0
+      const blockStart = i === 0 ? start : 0;
       const blockEnd =
         i === selectedBlocks.size - 1
           ? end
-          : selectedBlocks.get(i).getText().length
+          : selectedBlocks.get(i).getText().length;
       selectedText += selectedBlocks
         .get(i)
         .getText()
-        .slice(blockStart, blockEnd)
+        .slice(blockStart, blockEnd);
     }
   }
 
-  return selectedText
+  return selectedText;
 }
 
 export function addLineBreakRemovingSelection(editorState: EditorState) {
-  const content = editorState.getCurrentContent()
-  const selection = editorState.getSelection()
-  let newContent = Modifier.removeRange(content, selection, 'forward')
-  const fragment = newContent.getSelectionAfter()
-  const block = newContent.getBlockForKey(fragment.getStartKey())
+  const content = editorState.getCurrentContent();
+  const selection = editorState.getSelection();
+  let newContent = Modifier.removeRange(content, selection, 'forward');
+  const fragment = newContent.getSelectionAfter();
+  const block = newContent.getBlockForKey(fragment.getStartKey());
   newContent = Modifier.insertText(
     newContent,
     fragment,
     '\n',
     block.getInlineStyleAt(fragment.getStartOffset()),
     undefined
-  )
+  );
 
-  return EditorState.push(editorState, newContent, 'insert-fragment')
+  return EditorState.push(editorState, newContent, 'insert-fragment');
 }
 
 /**
@@ -180,15 +175,15 @@ export function insertNewUnstyledBlock(editorState: EditorState) {
   const newContentState = Modifier.splitBlock(
     editorState.getCurrentContent(),
     editorState.getSelection()
-  )
+  );
 
   const newEditorState = EditorState.push(
     editorState,
     newContentState,
     'split-block'
-  )
+  );
 
-  return removeSelectedBlocksStyle(newEditorState)
+  return removeSelectedBlocksStyle(newEditorState);
 }
 
 /**
@@ -199,44 +194,44 @@ export function clearEditorContent(editorState: EditorState) {
   const blocks = editorState
     .getCurrentContent()
     .getBlockMap()
-    .toList()
+    .toList();
 
   const updatedSelection = editorState.getSelection().merge({
     anchorKey: blocks.first().get('key'),
     anchorOffset: 0,
     focusKey: blocks.last().get('key'),
     focusOffset: blocks.last().getLength(),
-  })
+  });
 
   const newContentState = Modifier.removeRange(
     editorState.getCurrentContent(),
     updatedSelection,
     'forward'
-  )
+  );
 
-  return EditorState.push(editorState, newContentState, 'remove-range')
+  return EditorState.push(editorState, newContentState, 'remove-range');
 }
 
 export function removeCurrentBlockText(editorState: EditorState) {
-  const selection = editorState.getSelection()
-  const anchorKey = selection.getAnchorKey()
-  const contentState = editorState.getCurrentContent()
+  const selection = editorState.getSelection();
+  const anchorKey = selection.getAnchorKey();
+  const contentState = editorState.getCurrentContent();
 
-  const startOffset = 0
-  const endOffset = selection.getEndOffset()
+  const startOffset = 0;
+  const endOffset = selection.getEndOffset();
 
   const newSelection = new SelectionState({
     anchorKey: anchorKey,
     anchorOffset: startOffset,
     focusKey: anchorKey,
     focusOffset: endOffset
-  })
+  });
 
   const afterRemovalContentState = Modifier.removeRange(
     contentState,
     newSelection,
     'backward'
-  )
+  );
 
-  return EditorState.push(editorState, afterRemovalContentState, 'remove-range')
+  return EditorState.push(editorState, afterRemovalContentState, 'remove-range');
 }

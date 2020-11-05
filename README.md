@@ -14,7 +14,7 @@ yarn add draft-js mango-plugins-editor
 import 'react-app-polyfill/ie11'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import Editor, { SyntheticKeyboardEvent } from 'mango-plugins-editor'
+import Editor from 'mango-plugins-editor'
 import { EditorState } from 'draft-js'
 
 const App = () => {
@@ -29,7 +29,6 @@ const App = () => {
         placeholder="Enter your messages"
         editorState={editorState}
         onChange={setEditorState}
-        handleReturn={handleReturn}
       />
     </div>
   );
