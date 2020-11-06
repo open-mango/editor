@@ -24,7 +24,6 @@ const App = () => {
   return (
     <div>
       <MangoEditor
-        editorRef={editor}
         placeholder="아리랑"
         editorState={editorState}
         onChange={setEditorState}

@@ -27,12 +27,8 @@ import { removeCurrentBlockText, insertEmoji } from './EditorUtil';
 export type SyntheticKeyboardEvent = React.KeyboardEvent<{}>;
 export type SyntheticEvent = React.SyntheticEvent<{}>;
 
-export interface MangoEditorProps extends EditorProps {
-  editorRef: React.RefObject<Editor>;
-}
-
-function MangoEditor(props: MangoEditorProps) {
-  const { editorState, onChange, readOnly, editorRef } = props;
+function MangoEditor(props: EditorProps) {
+  const { editorState, onChange, readOnly } = props;
   const [openEmojiPicker, setOpenEmojiPicker] = React.useState<boolean>(false)
 
   const closeEmojiPicker = React.useCallback(() => {
@@ -214,7 +210,6 @@ function MangoEditor(props: MangoEditorProps) {
     <div>
       <Editor
         {...props}
-        ref={editorRef}
         readOnly={readOnly}
         editorState={editorState}
         onChange={onChange}
