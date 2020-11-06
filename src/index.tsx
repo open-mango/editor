@@ -8,46 +8,46 @@ import {
   convertFromHTML,
   getDefaultKeyBinding,
   RichUtils,
-  EditorProps,
-  DraftDecorator,
-  DraftBlockRenderMap
+  EditorProps
 } from 'draft-js';
 import { Map } from 'immutable';
-import { removeCurrentBlockText } from './EditorUtil';
 import { CompositeDecorator } from 'draft-js';
-import { handleStrategy, hashtagStrategy } from './Plugins/Hashtag/strategy';
-import { HandleSpan, HashtagSpan } from './Plugins/Hashtag';
+import { EmojiData, Picker } from 'emoji-mart';
+
+import 'emoji-mart/css/emoji-mart.css'
+
+// Plugins
+import { hashtagStrategy } from './Plugins/Hashtag/strategy';
+import { HashtagSpan } from './Plugins/Hashtag';
+// import { emojiStrategy } from './Plugins/Emoji/strategy';
+// import { EmojiSpan } from './Plugins/Emoji';
+
+import { removeCurrentBlockText, insertEmoji } from './EditorUtil';
 
 export type SyntheticKeyboardEvent = React.KeyboardEvent<{}>;
 export type SyntheticEvent = React.SyntheticEvent<{}>;
 
-export interface EditorPlugin {
-  decorators?: DraftDecorator[]
-  blockRendererFn?(block: ContentBlock): any;
-  blockRenderMap?: DraftBlockRenderMap
-}
-
 export interface MangoEditorProps extends EditorProps {
-  editorState: EditorState
-  onChange: (editorState: EditorState) => void
-  readOnly?: boolean
-  editorRef: React.RefObject<Editor>
-  plugins?: EditorPlugin[]
-  decorators?: DraftDecorator[]
+  editorRef: React.RefObject<Editor>;
 }
 
 function MangoEditor(props: MangoEditorProps) {
-
   const { editorState, onChange, readOnly, editorRef } = props;
+  const [openEmojiPicker, setOpenEmojiPicker] = React.useState<boolean>(false)
+
+  const closeEmojiPicker = React.useCallback(() => {
+    setOpenEmojiPicker(false)
+  }, [openEmojiPicker])
+
   const compositeDecorator = new CompositeDecorator([
-    {
-      strategy: handleStrategy,
-      component: HandleSpan
-    },
     {
       strategy: hashtagStrategy,
       component: HashtagSpan
-    }
+    },
+    // {
+    //   strategy: emojiStrategy,
+    //   component: EmojiSpan
+    // }
   ])
 
   React.useEffect(() => {
@@ -202,20 +202,37 @@ function MangoEditor(props: MangoEditorProps) {
     onChange(EditorState.moveFocusToEnd(es));
   }
 
+  const handleEmoji = (emoji: EmojiData) => {
+    if ('native' in emoji) {
+      const es = insertEmoji(editorState, emoji.native)
+      onChange(EditorState.moveFocusToEnd(es));
+      closeEmojiPicker()
+    }
+  }
+
   return (
-    <Editor
-      {...props}
-      ref={editorRef}
-      readOnly={readOnly}
-      editorState={editorState}
-      onChange={onChange}
-      blockRendererFn={renderBlock}
-      blockRenderMap={blockRenderMap}
-      keyBindingFn={handleKeyBinding}
-      handleKeyCommand={handleKeyCommand}
-      handlePastedText={handlePastedText}
-      handleBeforeInput={handleBeforeInput}
-    />
+    <div>
+      <Editor
+        {...props}
+        ref={editorRef}
+        readOnly={readOnly}
+        editorState={editorState}
+        onChange={onChange}
+        blockRendererFn={renderBlock}
+        blockRenderMap={blockRenderMap}
+        keyBindingFn={handleKeyBinding}
+        handleKeyCommand={handleKeyCommand}
+        handlePastedText={handlePastedText}
+        handleBeforeInput={handleBeforeInput}
+      />
+      {openEmojiPicker && (
+        <Picker
+          set='apple'
+          onSelect={handleEmoji}
+          style={{ position: 'absolute', bottom: '20px', right: '20px' }}
+        />
+      )}
+    </div>
   )
 
 }

@@ -32,17 +32,6 @@ interface HashtagSpanProps {
   children: React.ReactNode
 }
 
-export const HandleSpan = (props: HashtagSpanProps) => {
-  return (
-    <span
-      style={styles.hashtag}
-      data-offset-key={props.offsetKey}
-    >
-      {props.children}
-    </span>
-  )
-}
-
 export const HashtagSpan = (props: HashtagSpanProps) => {
   return (
     <span

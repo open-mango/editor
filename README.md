@@ -39,6 +39,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ## TODO
 
+- [x] Hashtag Plugin
 - [ ] Emoji Plugin
 - [ ] Mention Plugin
 - [ ] File Upload Plugin

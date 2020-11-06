@@ -67,6 +67,7 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.7.0",
     "@types/draft-js": "^0.10.44",
+    "@types/emoji-mart": "^3.0.4",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
     "husky": "^4.3.0",
@@ -78,7 +79,11 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "draft-js": "^0.11.7",
+    "emoji-mart": "^3.0.0",
+    "emoji-regex": "^9.2.0",
     "immutable": "^4.0.0-rc.12"
   }
 }

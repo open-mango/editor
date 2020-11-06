@@ -212,6 +212,10 @@ export function clearEditorContent(editorState: EditorState) {
   return EditorState.push(editorState, newContentState, 'remove-range');
 }
 
+/**
+ * 현재 커서가 위치한 content block 을 삭제합니다.
+ * @param editorState
+ */
 export function removeCurrentBlockText(editorState: EditorState) {
   const selection = editorState.getSelection();
   const anchorKey = selection.getAnchorKey();
@@ -234,4 +238,17 @@ export function removeCurrentBlockText(editorState: EditorState) {
   );
 
   return EditorState.push(editorState, afterRemovalContentState, 'remove-range');
+}
+
+export function insertEmoji(editorState: EditorState, emoji: string) {
+  const selection = editorState.getSelection()
+  const contentState = editorState.getCurrentContent();
+  let nextContentState
+  if (selection.isCollapsed()) {
+    nextContentState = Modifier.insertText(contentState, selection, emoji)
+  } else {
+    nextContentState = Modifier.replaceText(contentState, selection, emoji)
+  }
+
+  return EditorState.push(editorState, nextContentState, 'insert-characters')
 }
