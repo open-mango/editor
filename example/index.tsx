@@ -1,11 +1,11 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import Editor, { SyntheticKeyboardEvent } from '../.'
+import MangoEditor, { SyntheticKeyboardEvent } from '../.'
 import { EditorState } from 'draft-js';
 
 const App = () => {
-  const editorRef = React.useRef()
+  const editor = React.useRef<typeof MangoEditor>()
   const initialContent = EditorState.createEmpty()
   const [editorState, setEditorState] = React.useState<EditorState>(initialContent)
 
@@ -23,8 +23,8 @@ const App = () => {
 
   return (
     <div>
-      <Editor
-        editorRef={editorRef}
+      <MangoEditor
+        editorRef={editor}
         placeholder="아리랑"
         editorState={editorState}
         onChange={setEditorState}
