@@ -19,7 +19,6 @@ export const EmojiSpan = (props: EmojiSpanProps) => {
       data-offset-key={props.offsetKey}
     >
       {props.children}
-      {/* <Emoji emoji=':+1:' size={16} /> */}
     </span>
   );
 };

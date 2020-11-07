@@ -12,7 +12,6 @@ import {
 } from 'draft-js';
 import { Map } from 'immutable';
 import { CompositeDecorator } from 'draft-js';
-import { EmojiData, Picker } from 'emoji-mart';
 
 import 'emoji-mart/css/emoji-mart.css'
 
@@ -22,18 +21,13 @@ import { HashtagSpan } from './Plugins/Hashtag';
 // import { emojiStrategy } from './Plugins/Emoji/strategy';
 // import { EmojiSpan } from './Plugins/Emoji';
 
-import { removeCurrentBlockText, insertEmoji } from './EditorUtil';
+import { removeCurrentBlockText } from './EditorUtil';
 
 export type SyntheticKeyboardEvent = React.KeyboardEvent<{}>;
 export type SyntheticEvent = React.SyntheticEvent<{}>;
 
 function MangoEditor(props: EditorProps) {
   const { editorState, onChange, readOnly } = props;
-  const [openEmojiPicker, setOpenEmojiPicker] = React.useState<boolean>(false)
-
-  const closeEmojiPicker = React.useCallback(() => {
-    setOpenEmojiPicker(false)
-  }, [openEmojiPicker])
 
   const compositeDecorator = new CompositeDecorator([
     {
@@ -69,10 +63,12 @@ function MangoEditor(props: EditorProps) {
       element: 'blockquote'
     },
     'ordered-list-item': {
-      element: 'ol'
+      element: 'li',
+      wrapper: <ol />
     },
     'unordered-list-item': {
-      element: 'ul'
+      element: 'li',
+      wrapper: <ul />
     }
   })
 
@@ -177,6 +173,9 @@ function MangoEditor(props: EditorProps) {
         case '``':
           _smartKeyCommand('block', 'code-block', removeCurrentBlockText(editorState));
           return 'handled';
+        case '*':
+          _smartKeyCommand('block', 'ordered-list-item', removeCurrentBlockText(editorState));
+          return 'handled';
         default:
           return 'not-handled';
       }
@@ -198,36 +197,19 @@ function MangoEditor(props: EditorProps) {
     onChange(EditorState.moveFocusToEnd(es));
   }
 
-  const handleEmoji = (emoji: EmojiData) => {
-    if ('native' in emoji) {
-      const es = insertEmoji(editorState, emoji.native)
-      onChange(EditorState.moveFocusToEnd(es));
-      closeEmojiPicker()
-    }
-  }
-
   return (
-    <div>
-      <Editor
-        {...props}
-        readOnly={readOnly}
-        editorState={editorState}
-        onChange={onChange}
-        blockRendererFn={renderBlock}
-        blockRenderMap={blockRenderMap}
-        keyBindingFn={handleKeyBinding}
-        handleKeyCommand={handleKeyCommand}
-        handlePastedText={handlePastedText}
-        handleBeforeInput={handleBeforeInput}
-      />
-      {openEmojiPicker && (
-        <Picker
-          set='apple'
-          onSelect={handleEmoji}
-          style={{ position: 'absolute', bottom: '20px', right: '20px' }}
-        />
-      )}
-    </div>
+    <Editor
+      {...props}
+      readOnly={readOnly}
+      editorState={editorState}
+      onChange={onChange}
+      blockRendererFn={renderBlock}
+      blockRenderMap={blockRenderMap}
+      keyBindingFn={handleKeyBinding}
+      handleKeyCommand={handleKeyCommand}
+      handlePastedText={handlePastedText}
+      handleBeforeInput={handleBeforeInput}
+    />
   )
 
 }

@@ -22,7 +22,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="markdown-body">
       <MangoEditor
         placeholder="아리랑"
         editorState={editorState}
