@@ -6,7 +6,7 @@
  * 하지만, 분석용으로 괜찮을 것 같아서 소스에서 제거하지는 않음
  */
 
-import { EditorState, RichUtils, Modifier, SelectionState, } from 'draft-js';
+import { EditorState, RichUtils, Modifier, SelectionState } from 'draft-js';
 
 export function getSelectedBlockMap(editorState: EditorState) {
   const selectionState = editorState.getSelection();
@@ -60,7 +60,7 @@ export function getBlockBeforeSelectedBlock(editorState: EditorState) {
       if (block?.get('key') === selectedBlock?.get('key')) {
         previousIndex = index || 0 - 1;
       }
-    })
+    });
 
     if (previousIndex > -1) {
       return blockList.get(previousIndex);
@@ -228,7 +228,7 @@ export function removeCurrentBlockText(editorState: EditorState) {
     anchorKey: anchorKey,
     anchorOffset: startOffset,
     focusKey: anchorKey,
-    focusOffset: endOffset
+    focusOffset: endOffset,
   });
 
   const afterRemovalContentState = Modifier.removeRange(
@@ -237,18 +237,22 @@ export function removeCurrentBlockText(editorState: EditorState) {
     'backward'
   );
 
-  return EditorState.push(editorState, afterRemovalContentState, 'remove-range');
+  return EditorState.push(
+    editorState,
+    afterRemovalContentState,
+    'remove-range'
+  );
 }
 
 export function insertEmoji(editorState: EditorState, emoji: string) {
-  const selection = editorState.getSelection()
+  const selection = editorState.getSelection();
   const contentState = editorState.getCurrentContent();
-  let nextContentState
+  let nextContentState;
   if (selection.isCollapsed()) {
-    nextContentState = Modifier.insertText(contentState, selection, emoji)
+    nextContentState = Modifier.insertText(contentState, selection, emoji);
   } else {
-    nextContentState = Modifier.replaceText(contentState, selection, emoji)
+    nextContentState = Modifier.replaceText(contentState, selection, emoji);
   }
 
-  return EditorState.push(editorState, nextContentState, 'insert-characters')
+  return EditorState.push(editorState, nextContentState, 'insert-characters');
 }

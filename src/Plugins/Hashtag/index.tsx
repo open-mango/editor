@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 const styles = {
   root: {
-    fontFamily: '\'Helvetica\', sans-serif',
+    fontFamily: "'Helvetica', sans-serif",
     padding: 20,
     width: 600,
   },
@@ -28,16 +28,14 @@ const styles = {
 };
 
 interface HashtagSpanProps {
-  offsetKey: number
-  children: React.ReactNode
+  offsetKey: number;
+  children: React.ReactNode;
+  decoratedText: string;
 }
 
 export const HashtagSpan = (props: HashtagSpanProps) => {
   return (
-    <span
-      style={styles.hashtag}
-      data-offset-key={props.offsetKey}
-    >
+    <span style={styles.hashtag} data-offset-key={props.offsetKey}>
       {props.children}
     </span>
   );

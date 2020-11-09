@@ -1,23 +1,19 @@
-import React from 'react'
+import React from 'react';
 
 const styles = {
   emoji: {
-    padding: '0 4px'
+    padding: '0 4px',
   },
 };
 
 interface EmojiSpanProps {
-  offsetKey: number
-  children: React.ReactNode
+  offsetKey: number;
+  children: React.ReactNode;
 }
 
 export const EmojiSpan = (props: EmojiSpanProps) => {
-  console.log(props.children)
   return (
-    <span
-      style={styles.emoji}
-      data-offset-key={props.offsetKey}
-    >
+    <span style={styles.emoji} data-offset-key={props.offsetKey}>
       {props.children}
     </span>
   );

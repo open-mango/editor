@@ -6,5 +6,5 @@ const skin = `:skin-tone-[2-6]:`;
 const colonsRegex = new RegExp(`(${colons}${skin}|${colons})`, 'g');
 
 export function emojiStrategy(contentBlock: ContentBlock, callback: Function) {
-  findWithRegex(colonsRegex, contentBlock, callback)
+  findWithRegex(colonsRegex, contentBlock, callback);
 }
