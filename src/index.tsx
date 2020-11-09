@@ -44,7 +44,7 @@ function MangoEditor(props: EditorProps) {
       decorator: compositeDecorator,
     });
     onChange(newEditorState);
-  }, []);
+  }, [compositeDecorator, editorState, onChange]);
 
   // const renderBlock = (contentBlock: ContentBlock) => {
   //   if (contentBlock.getType() === 'atomic') {

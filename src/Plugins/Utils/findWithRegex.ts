@@ -1,6 +1,10 @@
-import { ContentBlock } from 'draft-js'
+import { ContentBlock } from 'draft-js';
 
-const findWithRegex = (regex: RegExp, contentBlock: ContentBlock, callback: Function): void => {
+const findWithRegex = (
+  regex: RegExp,
+  contentBlock: ContentBlock,
+  callback: Function
+): void => {
   const text = contentBlock.getText();
   let matchArr;
   let start;
