@@ -1,5 +1,5 @@
 import React from 'react';
-import mime from 'mime-types';
+// import mime from 'mime-types';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { IconButton, Paper } from '@material-ui/core';
@@ -94,15 +94,15 @@ function Preview({ previews, onRemovePreview }: PreviewProps) {
             </div>
           );
         } else {
-          const ext = mime.extension(file.type);
+          // const ext = mime.extension(file.type);
           return (
             <Paper key={index} elevation={0} className={classes.noImage}>
               <div className={classes.fileInfoContainer}>
-                <img
+                {/* <img
                   src={require(`./images/mime_icons/${ext}.svg`)}
                   alt={`${ext} file`}
                   height="40"
-                />
+                /> */}
                 <div className={classes.fileInfo}>
                   <div>{file.name}</div>
                   <div>{file.size}</div>
