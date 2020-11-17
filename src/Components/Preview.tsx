@@ -99,7 +99,7 @@ function Preview({ previews, onRemovePreview }: PreviewProps) {
             <Paper key={index} elevation={0} className={classes.noImage}>
               <div className={classes.fileInfoContainer}>
                 <img
-                  src={require(`../images/mime_icons/${ext}.svg`)}
+                  src={require(`./images/mime_icons/${ext}.svg`)}
                   alt={`${ext} file`}
                   height="40"
                 />
