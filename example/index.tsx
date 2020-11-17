@@ -2,15 +2,16 @@ import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import MangoEditor, { SyntheticKeyboardEvent } from '../.'
-import { EditorState } from 'draft-js';
+import { ContentState, convertToRaw, convertFromRaw, EditorState } from 'draft-js';
 
 const App = () => {
-  const editor = React.useRef<typeof MangoEditor>()
   const initialContent = EditorState.createEmpty()
+  const [messages, setMessages] = React.useState<string[]>([])
   const [editorState, setEditorState] = React.useState<EditorState>(initialContent)
 
   const handleReturn = (e: SyntheticKeyboardEvent, editorState: EditorState) => {
     if (!e.shiftKey) {
+      handleSendMessage(editorState)
       return 'handled'
     }
 
@@ -21,10 +22,37 @@ const App = () => {
     return 'not-handled'
   }
 
+  const handleSendMessage = (editorState: EditorState) => {
+    const content = editorState.getCurrentContent()
+    if (content.getPlainText('').length < 1) return 'not-handled'
+
+    const message = JSON.stringify(convertToRaw(editorState.getCurrentContent()))
+    setMessages(prev => [...prev, message])
+
+    setTimeout(() => {
+      _clearEditorState(editorState)
+    }, 10)
+  }
+
+  const _clearEditorState = (editorState: EditorState) => {
+    const es = EditorState.push(editorState, ContentState.createFromText(''), 'remove-range')
+    setEditorState(EditorState.moveFocusToEnd(es))
+  }
+
+
   return (
-    <div className="markdown-body">
+    <div className="markdown-body" style={{ overflow: 'auto' }}>
+      {messages.map((message, index) => (
+        <div style={{ padding: 10 }}>
+          <MangoEditor
+            editorState={EditorState.createWithContent(convertFromRaw(JSON.parse(message)))}
+            readOnly={true}
+            onChange={setEditorState}
+          />
+        </div>
+      ))}
       <MangoEditor
-        placeholder="아리랑"
+        placeholder="Enter your messages (Shift + Enter for new line)"
         editorState={editorState}
         onChange={setEditorState}
         handleReturn={handleReturn}

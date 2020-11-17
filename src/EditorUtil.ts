@@ -6,7 +6,14 @@
  * 하지만, 분석용으로 괜찮을 것 같아서 소스에서 제거하지는 않음
  */
 
-import { EditorState, RichUtils, Modifier, SelectionState } from 'draft-js';
+import {
+  EditorState,
+  RichUtils,
+  Modifier,
+  SelectionState,
+  AtomicBlockUtils,
+} from 'draft-js';
+import { UploadFile } from './Components/Preview';
 
 export function getSelectedBlockMap(editorState: EditorState) {
   const selectionState = editorState.getSelection();
@@ -249,10 +256,55 @@ export function insertEmoji(editorState: EditorState, emoji: string) {
   const contentState = editorState.getCurrentContent();
   let nextContentState;
   if (selection.isCollapsed()) {
-    nextContentState = Modifier.insertText(contentState, selection, emoji);
+    nextContentState = Modifier.insertText(
+      contentState,
+      selection,
+      emoji + ' '
+    );
   } else {
-    nextContentState = Modifier.replaceText(contentState, selection, emoji);
+    nextContentState = Modifier.replaceText(
+      contentState,
+      selection,
+      emoji + ' '
+    );
   }
 
   return EditorState.push(editorState, nextContentState, 'insert-characters');
+}
+
+export function insertCustomEmoji(editorState: EditorState, src: string) {
+  const contentState = editorState.getCurrentContent();
+  const contentStateWithEntity = contentState.createEntity(
+    'emoji',
+    'IMMUTABLE',
+    { src }
+  );
+
+  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+  const newEditorState = EditorState.set(editorState, {
+    currentContent: contentStateWithEntity,
+  });
+
+  return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+}
+
+export function insertUploadedFiles(
+  editorState: EditorState,
+  files: UploadFile[]
+) {
+  if (files.length < 1) return editorState;
+
+  const contentState = editorState.getCurrentContent();
+  const contentStateWithEntity = contentState.createEntity(
+    'upload',
+    'IMMUTABLE',
+    { files }
+  );
+
+  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+  const newEditorState = EditorState.set(editorState, {
+    currentContent: contentStateWithEntity,
+  });
+
+  return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
 }

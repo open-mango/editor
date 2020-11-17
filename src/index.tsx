@@ -11,6 +11,10 @@ import {
 } from 'draft-js';
 import { Map } from 'immutable';
 import { CompositeDecorator } from 'draft-js';
+import { EmojiData } from 'emoji-mart';
+
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Divider } from '@material-ui/core';
 
 import 'emoji-mart/css/emoji-mart.css';
 
@@ -20,13 +24,52 @@ import { HashtagSpan } from './Plugins/Hashtag';
 // import { emojiStrategy } from './Plugins/Emoji/strategy';
 // import { EmojiSpan } from './Plugins/Emoji';
 
-import { removeCurrentBlockText } from './EditorUtil';
+import {
+  insertCustomEmoji,
+  insertEmoji,
+  removeCurrentBlockText,
+} from './EditorUtil';
+import Preview, { UploadFile } from './Components/Preview';
+import MangoToolbar from './Components/Toolbar';
+import { styleMap } from './Components/Formater';
 
 export type SyntheticKeyboardEvent = React.KeyboardEvent<{}>;
 export type SyntheticEvent = React.SyntheticEvent<{}>;
 
-function MangoEditor(props: EditorProps) {
-  const { editorState, onChange, readOnly } = props;
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    editorContainer: {
+      width: '100%',
+    },
+    editorWrapper: {
+      border: '1px solid #ccc',
+      borderRadius: theme.shape.borderRadius,
+    },
+    buttons: {
+      marginTop: theme.spacing(1),
+      '& button': {
+        marginRight: theme.spacing(1),
+      },
+    },
+  })
+);
+
+export interface MangoEditorProps extends EditorProps {
+  previews?: UploadFile[];
+  onRemovePreview?: (id: number) => void;
+  onFileUploadClick?: () => void;
+}
+
+function MangoEditor(props: MangoEditorProps) {
+  const classes = useStyles();
+  const {
+    previews,
+    editorState,
+    onChange,
+    readOnly,
+    onRemovePreview,
+    onFileUploadClick,
+  } = props;
 
   const compositeDecorator = new CompositeDecorator([
     {
@@ -45,12 +88,6 @@ function MangoEditor(props: EditorProps) {
     });
     onChange(newEditorState);
   }, []);
-
-  // const renderBlock = (contentBlock: ContentBlock) => {
-  //   if (contentBlock.getType() === 'atomic') {
-  //     console.log('atomic content type');
-  //   }
-  // }
 
   const blockRenderMap = Map({
     unstyled: {
@@ -72,6 +109,14 @@ function MangoEditor(props: EditorProps) {
       wrapper: <ul />,
     },
   });
+
+  const handleToggleBlockType = (type: string) => {
+    onChange(RichUtils.toggleBlockType(editorState, type));
+  };
+
+  const handleToggleInlineStyleType = (type: string) => {
+    onChange(RichUtils.toggleInlineStyle(editorState, type));
+  };
 
   const removeBlockFromBlockmap = (editorState: EditorState, key: string) => {
     const cs = editorState.getCurrentContent();
@@ -253,19 +298,50 @@ function MangoEditor(props: EditorProps) {
     onChange(EditorState.moveFocusToEnd(es));
   };
 
+  const handleAddEmoji = (emoji: EmojiData) => {
+    let newEditorState;
+
+    if ('native' in emoji) {
+      newEditorState = insertEmoji(editorState, emoji.native);
+    } else {
+      newEditorState = insertCustomEmoji(editorState, emoji.imageUrl);
+    }
+
+    onChange(EditorState.moveFocusToEnd(newEditorState));
+  };
+
   return (
-    <Editor
-      {...props}
-      readOnly={readOnly}
-      editorState={editorState}
-      onChange={onChange}
-      // blockRendererFn={renderBlock}
-      blockRenderMap={blockRenderMap}
-      keyBindingFn={handleKeyBinding}
-      handleKeyCommand={handleKeyCommand}
-      handlePastedText={handlePastedText}
-      handleBeforeInput={handleBeforeInput}
-    />
+    <div className={classes.editorContainer}>
+      <div className={readOnly ? '' : classes.editorWrapper}>
+        <div style={{ padding: readOnly ? 0 : 14 }}>
+          <Editor
+            {...props}
+            readOnly={readOnly}
+            editorState={editorState}
+            onChange={onChange}
+            customStyleMap={styleMap}
+            blockRenderMap={blockRenderMap}
+            keyBindingFn={handleKeyBinding}
+            handleKeyCommand={handleKeyCommand}
+            handlePastedText={handlePastedText}
+            handleBeforeInput={handleBeforeInput}
+          />
+        </div>
+        {!readOnly && (
+          <React.Fragment>
+            <Preview previews={previews} onRemovePreview={onRemovePreview} />
+            <Divider />
+            <MangoToolbar
+              editorState={editorState}
+              onAddEmoji={handleAddEmoji}
+              onToggleInlineStyleType={handleToggleInlineStyleType}
+              onToggleBlockStyleType={handleToggleBlockType}
+              onFileUploadClick={onFileUploadClick}
+            />
+          </React.Fragment>
+        )}
+      </div>
+    </div>
   );
 }
 
