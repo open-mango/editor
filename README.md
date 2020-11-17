@@ -4,11 +4,17 @@ This is a Editor based on the `draft-js`
 
 This editor is made for developers who wants to make slack-like text editor
 
+
 ## Usage
 
 ```bash
 yarn add draft-js mango-plugins-editor
 ```
+<h2>
+  <a href="https://mango-editor-playground.vercel.app/">Demo</a>
+</h2>
+
+---
 
 ## Sample Code
 
