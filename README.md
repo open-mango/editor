@@ -11,10 +11,8 @@ This editor is made for developers who wants to make slack-like text editor
 yarn add draft-js mango-plugins-editor
 ```
 <h2>
-  <a href="https://mango-editor-playground.vercel.app/">Demo</a>
+  <a href="https://mango-editor-playground.vercel.app/" target="_blank">Demo</a>
 </h2>
-
----
 
 ## Sample Code
 
