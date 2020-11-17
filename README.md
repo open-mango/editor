@@ -30,10 +30,6 @@ const App = () => {
       return 'handled'
     }
 
-    if (e.key === 'handle') {
-      return 'handled'
-    }
-
     return 'not-handled'
   }
 
