@@ -8,6 +8,7 @@ import {
   getDefaultKeyBinding,
   RichUtils,
   EditorProps,
+  DraftHandleValue,
 } from 'draft-js';
 import { Map } from 'immutable';
 import { CompositeDecorator } from 'draft-js';
@@ -56,19 +57,45 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface MangoEditorProps extends EditorProps {
   previews?: UploadFile[];
+  editorRef?: React.RefObject<Editor>;
   onRemovePreview?: (id: number) => void;
   onFileUploadClick?: () => void;
+  onExtraButtonClick?: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
+  onHandleKeyBinding?: (e: SyntheticKeyboardEvent) => string | null;
+  onHandlePastedText?: (
+    text: string,
+    html: string | undefined,
+    editorState: EditorState
+  ) => DraftHandleValue;
+  onHandleKeyCommand?: (
+    command: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => DraftHandleValue;
+  onHandleBeforeInput?: (
+    chars: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => DraftHandleValue;
 }
 
 function MangoEditor(props: MangoEditorProps) {
   const classes = useStyles();
   const {
     previews,
+    editorRef,
     editorState,
     onChange,
     readOnly,
+    onExtraButtonClick,
     onRemovePreview,
     onFileUploadClick,
+    onHandleKeyBinding,
+    onHandlePastedText,
+    onHandleKeyCommand,
+    onHandleBeforeInput,
   } = props;
 
   const compositeDecorator = new CompositeDecorator([
@@ -145,20 +172,20 @@ function MangoEditor(props: MangoEditorProps) {
       return 'editor-undo';
     }
 
-    return getDefaultKeyBinding(e);
+    return onHandleKeyBinding ? onHandleKeyBinding(e) : getDefaultKeyBinding(e);
   };
 
-  const handleKeyCommand = (command: string, editorState: EditorState) => {
-    if (command === 'editor-save') {
-      _clearEditorState(editorState);
-      return 'handled';
-    }
-
+  const handleKeyCommand = (
+    command: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => {
     if (command === 'editor-undo') {
       removeBlockFromBlockmap(
         editorState,
         editorState.getSelection().getAnchorKey()
       );
+
       return 'handled';
     }
 
@@ -168,7 +195,9 @@ function MangoEditor(props: MangoEditorProps) {
       return 'handled';
     }
 
-    return 'not-handled';
+    return onHandleKeyCommand
+      ? onHandleKeyCommand(command, editorState, eventTimeStamp)
+      : 'not-handled';
   };
 
   const handlePastedText = (
@@ -217,13 +246,15 @@ function MangoEditor(props: MangoEditorProps) {
       return 'handled';
     }
 
-    return 'not-handled';
+    return onHandlePastedText
+      ? onHandlePastedText(text, html, editorState)
+      : 'not-handled';
   };
 
   const handleBeforeInput = (
     chars: string,
     editorState: EditorState,
-    _eventTimeStamp: number
+    eventTimeStamp: number
   ) => {
     if (chars === ' ' || chars === '`') {
       const selection = editorState.getSelection();
@@ -266,7 +297,9 @@ function MangoEditor(props: MangoEditorProps) {
       }
     }
 
-    return 'not-handled';
+    return onHandleBeforeInput
+      ? onHandleBeforeInput(chars, editorState, eventTimeStamp)
+      : 'not-handled';
   };
 
   const _smartKeyCommand = (
@@ -289,15 +322,6 @@ function MangoEditor(props: MangoEditorProps) {
     }
   };
 
-  const _clearEditorState = (editorState: EditorState) => {
-    const es = EditorState.push(
-      editorState,
-      ContentState.createFromText(''),
-      'remove-range'
-    );
-    onChange(EditorState.moveFocusToEnd(es));
-  };
-
   const handleAddEmoji = (emoji: EmojiData) => {
     let newEditorState;
 
@@ -316,6 +340,7 @@ function MangoEditor(props: MangoEditorProps) {
         <div style={{ padding: readOnly ? 0 : 14 }}>
           <Editor
             {...props}
+            ref={editorRef}
             readOnly={readOnly}
             editorState={editorState}
             onChange={onChange}
@@ -333,6 +358,7 @@ function MangoEditor(props: MangoEditorProps) {
             <Divider />
             <MangoToolbar
               editorState={editorState}
+              onExtraButtonClick={onExtraButtonClick}
               onAddEmoji={handleAddEmoji}
               onToggleInlineStyleType={handleToggleInlineStyleType}
               onToggleBlockStyleType={handleToggleBlockType}

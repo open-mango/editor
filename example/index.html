@@ -5,50 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Playground</title>
-  </head>
-
-  <style>
-    html {
-      /* overflow-y: hidden; */
-    }
-    pre {
-      padding: 0.625rem;
-      background: #eee;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      margin: 0.5rem 0;
-    }
-    .markdown-body blockquote {
-      border-left: 0.25em solid #dfe2e5;
-      padding: 0 1rem;
-      margin: 0
-    }
-    .publicDraftStyleDefault-block {
-      position: relative;
-      display: flex;
-      align-items: center;
-      white-space: pre-wrap;
-    }
-    .public-DraftEditorPlaceholder-root {
-      position: absolute;
-      color: #ccc;
-      z-index: -1;
-    }
-    .emoji-mart-search {
-      margin-bottom: 10px;
-      '& search' {
-        font-size: 14;
+    <style>
+      pre {
+        padding: 0.625rem;
+        background: #eee;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0.5rem 0;
       }
-    }
-    ul,
-    ol {
-      padding-left: 1rem;
-    }
-  </style>
-
+      .markdown-body blockquote {
+        border-left: 0.25em solid #dfe2e5;
+        padding: 0 1rem;
+        margin: 0
+      }
+      .publicDraftStyleDefault-block {
+        position: relative;
+        display: flex;
+        align-items: center;
+        white-space: pre-wrap;
+      }
+      .public-DraftEditorPlaceholder-root {
+        position: absolute;
+        color: #ccc;
+        z-index: -1;
+      }
+      .emoji-mart-search {
+        margin-bottom: 10px;
+        '& search' {
+          font-size: 14;
+        }
+      }
+      ul,
+      ol {
+        padding-left: 1rem;
+      }
+    </style>
+  </head>
   <body>
     <div id="root"></div>
     <script src="./index.tsx"></script>

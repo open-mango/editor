@@ -52,6 +52,9 @@ interface MangoToolbarProps {
   onToggleInlineStyleType: (type: string) => void;
   onToggleBlockStyleType: (type: string) => void;
   onFileUploadClick?: () => void;
+  onExtraButtonClick?: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
 }
 
 function MangoToolbar(props: MangoToolbarProps) {
@@ -63,6 +66,7 @@ function MangoToolbar(props: MangoToolbarProps) {
     onToggleInlineStyleType,
     onToggleBlockStyleType,
     onFileUploadClick,
+    onExtraButtonClick,
   } = props;
   const [
     emojiPickerEl,
@@ -84,12 +88,14 @@ function MangoToolbar(props: MangoToolbarProps) {
   return (
     <div className={classes.toolbar}>
       <div className={classes.format}>
-        <IconButton
-          className={classes.button}
-          // onClick={handleClickFeacherOpen}
-        >
-          <FlashOnRoundedIcon fontSize="small" />
-        </IconButton>
+        {onExtraButtonClick && (
+          <React.Fragment>
+            <IconButton className={classes.button} onClick={onExtraButtonClick}>
+              <FlashOnRoundedIcon fontSize="small" />
+            </IconButton>
+            <Divider orientation="vertical" style={{ height: '75%' }} />
+          </React.Fragment>
+        )}
         <Popover
           id="emoji-picker-popover"
           open={openEmojiPicker}
@@ -106,7 +112,6 @@ function MangoToolbar(props: MangoToolbarProps) {
         >
           <EmojiPicker onSelect={onAddEmoji} />
         </Popover>
-        <Divider orientation="vertical" style={{ height: '75%' }} />
         <InlineStyleControls
           editorState={editorState}
           onToggle={onToggleInlineStyleType}
