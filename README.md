@@ -55,7 +55,7 @@ export interface MangoEditorProps extends EditorProps {
 }
 ```
 
-### editorMode
+## editorMode
 
 You can change editor mode passing `editorMode` props.
 
@@ -63,7 +63,7 @@ Set editorMode to `chat`, if you want to use `mango editor` to slack-like editor
 
 If you want to use `mango editor` to document editor, you can change mode `editor` to set editorMode
 
-### mentions
+## mentions
 
 When you need mention functionality especially using mango editor to `chat mode`, you can pass `mentions` props to `mango editor`
 
