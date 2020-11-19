@@ -20,7 +20,7 @@ yarn add draft-js mango-plugins-editor
 
 ### Editor
 
-Available props. mango-plugins-editor can accept props which are provided by draft-js editor.
+The mango editor provides the following props:
 
 ```javascript
 export interface MangoEditorProps extends EditorProps {
@@ -57,11 +57,11 @@ export interface MangoEditorProps extends EditorProps {
 
 ## editorMode
 
-You can change editor mode passing `editorMode` props.
+You can change the mode of the mango editor by changing the `editorMode` props.
 
-Set editorMode to `chat`, if you want to use `mango editor` to slack-like editor
+To use the mango editor for the same purpose as the editor used in slack, use the `chat` mode.
 
-If you want to use `mango editor` to document editor, you can change mode `editor` to set editorMode
+Otherwise, To use it as a general document editor, use the `editor` mode.
 
 ## mentions
 
@@ -111,21 +111,23 @@ const users = [
 
 ## onHandleMentionClick
 
-We use mention trigger prefix string to '@'.
+The prefix to activate the mention function is `@`
 
-You can see mention suggestion list when you key press @ in mango editor area, if you pass `mentions` props to mango editor
+You can see mention suggestion list when you key press `@` in mango editor area, if you pass `mentions` props to mango editor
 
 Mango Editor fire `onHandleMentionClick` event with `Mention` interface when you click one of mention.
 
 ## onDragDropFiles
 
-Multi file upload functionality included Mango Editor 0.3.2 version.
+Version 0.3.2 of the mango editor, multi-file upload function has been added.
 
-You can Drag &amp; Drop files to editor area or click file upload button on mango editor toolbar.
+You can select files to upload using drag-and-drop or by clicking the file selection button.
 
-When you drop files to editor area then you can see preview panel over mango editor area and call `onDragDropFiles` callback function.
+When you drop the selected files in the editor area, a preview panel appears and thumbnails appear according to the type of the selected file.
 
-Make sure upload files to your server upload logic, and then return response to mango editor
+At this time, the `onDragDropFiles` callback function passed to Mango Editor is called.
+
+Upload the file using the file upload function you created in the onDragDropFiles callback function and return the result.
 
 ## onExtraButtonClick
 
