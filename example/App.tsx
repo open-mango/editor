@@ -1,7 +1,6 @@
 import * as React from 'react';
 import MangoEditor, { SyntheticKeyboardEvent, UploadFile } from '../.'
 import { convertToRaw, convertFromRaw, EditorState, Editor } from 'draft-js';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 const users = [
   {
@@ -41,17 +40,7 @@ const users = [
   }
 ]
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      flexDirection: 'column',
-    }
-  })
-)
-
 const App = () => {
-  const classes = useStyles()
   const initialContent = EditorState.createEmpty()
   const editorRef = React.useRef<Editor>()
   const [messages, setMessages] = React.useState<string[]>([])
@@ -87,12 +76,14 @@ const App = () => {
     return acceptedFiles
   }
 
-  function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   return (
-    <div className="markdown-body" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="markdown-body"
+      style={{
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       {messages.map((message, index) => (
         <div key={index}>
           <MangoEditor

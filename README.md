@@ -24,19 +24,108 @@ Available props. mango-plugins-editor can accept props which are provided by dra
 
 ```javascript
 export interface MangoEditorProps extends EditorProps {
+  editorMode: EditorMode;
   editorRef?: React.RefObject<Editor>;
-  onFileUploadClick?: () => void;
-  onExtraButtonClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  mentions?: Mention[];
+  onDragDropFiles?: (acceptedFiles: File[]) => UploadFile[];
+  onExtraButtonClick?: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
   onHandleKeyBinding?: (e: SyntheticKeyboardEvent) => string | null;
-  onHandlePastedText?: (text: string, html: string | undefined, editorState: EditorState) => DraftHandleValue;
-  onHandleKeyCommand?: (command: string, editorState: EditorState, eventTimeStamp: number) => DraftHandleValue;
-  onHandleBeforeInput?: (chars: string, editorState: EditorState, eventTimeStamp: number) => DraftHandleValue;
+  onHandlePastedText?: (
+    text: string,
+    html: string | undefined,
+    editorState: EditorState
+  ) => DraftHandleValue;
+  onHandleKeyCommand?: (
+    command: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => DraftHandleValue;
+  onHandleReturn?: (
+    e: SyntheticKeyboardEvent,
+    editorState: EditorState
+  ) => DraftHandleValue;
+  onHandleBeforeInput?: (
+    chars: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => DraftHandleValue;
+  onHandleMentionClick?: (mention: Mention) => void;
 }
 ```
 
-## onFileUploadClick
+### editorMode
 
-Not implement yet.
+You can change editor mode passing `editorMode` props.
+
+Set editorMode to `chat`, if you want to use `mango editor` to slack-like editor
+
+If you want to use `mango editor` to document editor, you can change mode `editor` to set editorMode
+
+### mentions
+
+When you need mention functionality especially using mango editor to `chat mode`, you can pass `mentions` props to `mango editor`
+
+mentions example:
+
+```javascript
+const users = [
+  {
+    id: 1,
+    name: 'John Malkovichi',
+    avatar: undefined,
+    email: 'john@gmail.com',
+    online: true
+  },
+  {
+    id: 2,
+    name: 'Tom Hanks',
+    avatar: undefined,
+    email: 'tom@gmail.com',
+    online: false
+  },
+  {
+    id: 3,
+    name: 'Scarlett Johansson',
+    avatar: undefined,
+    email: 'scarlett@gmail.com',
+    online: true
+  },
+  {
+    id: 4,
+    name: '홍길동',
+    avatar: undefined,
+    email: 'hong@gmail.com',
+    online: true
+  },
+  {
+    id: 5,
+    name: '김철수',
+    avatar: undefined,
+    email: 'john@gmail.com',
+    online: true
+  }
+]
+```
+
+## onHandleMentionClick
+
+We use mention trigger prefix string to '@'.
+
+You can see mention suggestion list when you key press @ in mango editor area, if you pass `mentions` props to mango editor
+
+Mango Editor fire `onHandleMentionClick` event with `Mention` interface when you click one of mention.
+
+## onDragDropFiles
+
+Multi file upload functionality included Mango Editor 0.3.2 version.
+
+You can Drag &amp; Drop files to editor area or click file upload button on mango editor toolbar.
+
+When you drop files to editor area then you can see preview panel over mango editor area and call `onDragDropFiles` callback function.
+
+Make sure upload files to your server upload logic, and then return response to mango editor
 
 ## onExtraButtonClick
 
@@ -50,25 +139,60 @@ mango-plugin-editor executes default `keyBindingFn` of draft-js editor.
 
 if you pass `onHandleKeyBinding` props to mango-plugin-editor, you can get control of `keyBindingFn` and you can process extra behavior and return values.
 
-
 ## Sample Code
 
 ```javascript
-import 'react-app-polyfill/ie11';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import MangoEditor, { SyntheticKeyboardEvent } from '../.'
-import { ContentState, convertToRaw, convertFromRaw, EditorState, getDefaultKeyBinding, RichUtils, Editor } from 'draft-js';
-import { Avatar, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, Paper } from '@material-ui/core';
+import MangoEditor, { SyntheticKeyboardEvent, UploadFile } from '../.'
+import { convertToRaw, convertFromRaw, EditorState, Editor } from 'draft-js';
+
+const users = [
+  {
+    id: 1,
+    name: 'John Malkovichi',
+    avatar: undefined,
+    email: 'john@gmail.com',
+    online: true
+  },
+  {
+    id: 2,
+    name: 'Tom Hanks',
+    avatar: undefined,
+    email: 'tom@gmail.com',
+    online: false
+  },
+  {
+    id: 3,
+    name: 'Scarlett Johansson',
+    avatar: undefined,
+    email: 'scarlett@gmail.com',
+    online: true
+  },
+  {
+    id: 4,
+    name: '홍길동',
+    avatar: undefined,
+    email: 'hong@gmail.com',
+    online: true
+  },
+  {
+    id: 5,
+    name: '김철수',
+    avatar: undefined,
+    email: 'john@gmail.com',
+    online: true
+  }
+]
 
 const App = () => {
   const initialContent = EditorState.createEmpty()
   const editorRef = React.useRef<Editor>()
   const [messages, setMessages] = React.useState<string[]>([])
   const [editorState, setEditorState] = React.useState<EditorState>(initialContent)
+  const [editorMode, setEditorMode] = React.useState<'chat' | 'editor'>('chat')
 
   const handleReturn = (e: SyntheticKeyboardEvent, editorState: EditorState) => {
-    if (!e.shiftKey) {
+    if (editorMode === 'chat' && !e.shiftKey) {
       handleSendMessage(editorState)
       return 'handled'
     }
@@ -82,107 +206,60 @@ const App = () => {
 
     const message = JSON.stringify(convertToRaw(editorState.getCurrentContent()))
     setMessages(prev => [...prev, message])
-
-    setTimeout(() => {
-      _clearEditorState(editorState)
-    }, 10)
   }
-
-  const _clearEditorState = (editorState: EditorState) => {
-    const es = EditorState.push(editorState, ContentState.createFromText(''), 'remove-range')
-    setEditorState(EditorState.moveFocusToEnd(es))
-  }
-
-  const handleBeforeInput = (
-    chars: string,
-    editorState: EditorState,
-    _eventTimeStamp: number
-  ) => {
-    if (chars === undefined) return 'handled'
-
-    if (chars === '@' || chars === '#') {
-      const selection = editorState.getSelection();
-      const command = editorState
-        .getCurrentContent()
-        .getBlockForKey(selection.getStartKey())
-        .getText();
-
-      const index = command.lastIndexOf(' ');
-      if (index + 1 === command.length) {
-        setSuggestions(true)
-      }
-    }
-
-    return 'not-handled'
-  };
 
   const handleExtraButtonClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    console.log('handleExtraButtonClick')
+    setEditorMode(prev => prev === 'chat' ? 'editor' : 'chat')
   }
 
-  const handleClickSuggestion = (
-    user: {
-      id: number;
-      name: string;
-      avatar: string | undefined;
-      online: boolean;
-      email: string;
-    }
-  ) => {
-    setSuggestions(false)
-  }
+  const handleDragDropFiles = (acceptedFiles: UploadFile[]) => {
+    acceptedFiles.map(file => {
+      file.uploaded = true
+    })
 
-  const targetUsers = users.filter(u => u.name.includes(search))
+    return acceptedFiles
+  }
 
   return (
-    <div className="markdown-body" style={{ overflow: 'auto' }}>
+    <div
+      className="markdown-body"
+      style={{
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       {messages.map((message, index) => (
-        <div key={index} style={{ padding: 10 }}>
+        <div key={index}>
           <MangoEditor
+            editorMode={editorMode}
             editorState={EditorState.createWithContent(convertFromRaw(JSON.parse(message)))}
             readOnly={true}
             onChange={setEditorState}
           />
         </div>
       ))}
-      {suggestions && (
-      <List
-        component="nav"
-        aria-labelledby="suggestions"
-      >
-        {targetUsers.map(user => (
-          <ListItem key={user.id} button onClick={() => handleClickSuggestion(user)}>
-            <ListItemIcon>
-              <Avatar src={user.avatar} />
-            </ListItemIcon>
-            <ListItemText primary={user.name} />
-            <ListItemSecondaryAction>
-              <Brightness1RoundedIcon color={user.online ? 'secondary' : 'disabled'} fontSize="small" />
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
-      </List>
-      )}
       <MangoEditor
+        editorMode={editorMode}
         editorRef={editorRef}
-        placeholder="Enter your messages (Shift + Enter for new line)"
+        mentions={users}
         editorState={editorState}
         onChange={setEditorState}
-        handleReturn={handleReturn}
+        onHandleReturn={handleReturn}
         onExtraButtonClick={handleExtraButtonClick}
-        onHandleBeforeInput={handleBeforeInput}
+        onDragDropFiles={handleDragDropFiles}
       />
     </div>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
-
+export default App
 ```
+
+See example [source](https://github.com/open-mango/editor/tree/master/example)
 
 ## TODO
 
 - [x] Hashtag Plugin
 - [x] Add Emoji-Mart
-- [ ] File Upload & Previews with react-dropzone
-- [ ] Mention Plugin
+- [x] File Upload & Previews with react-dropzone
+- [x] Mention Plugin
