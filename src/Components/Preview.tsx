@@ -1,5 +1,5 @@
 import React from 'react';
-// import mime from 'mime-types';
+import mime from 'mime-types';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { IconButton, Paper } from '@material-ui/core';
@@ -89,20 +89,24 @@ function Preview({ previews, onRemovePreview }: PreviewProps) {
         if (isImage) {
           return (
             <div key={index} className={classes.previewContainer}>
-              <img className={classes.preview} src={file.url} alt="preview" />
+              <img
+                className={classes.preview}
+                src={URL.createObjectURL(file)}
+                alt="preview"
+              />
               <div className={classes.previewState}>{progress}</div>
             </div>
           );
         } else {
-          // const ext = mime.extension(file.type);
+          const ext = mime.extension(file.type);
           return (
             <Paper key={index} elevation={0} className={classes.noImage}>
               <div className={classes.fileInfoContainer}>
-                {/* <img
-                  src={require(`./images/mime_icons/${ext}.svg`)}
+                <img
+                  src={`https://st-kr-tutor.s3-ap-northeast-2.amazonaws.com/got/909a673119ed00a5ecdb45e18a0606ab/${ext}.svg`}
                   alt={`${ext} file`}
                   height="40"
-                /> */}
+                />
                 <div className={classes.fileInfo}>
                   <div>{file.name}</div>
                   <div>{file.size}</div>

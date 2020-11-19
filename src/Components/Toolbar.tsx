@@ -3,7 +3,7 @@ import { EditorState } from 'draft-js';
 import { EmojiData } from 'emoji-mart';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { IconButton, Popover, Divider } from '@material-ui/core';
+import { IconButton, Popover, Divider, Tooltip } from '@material-ui/core';
 
 import FlashOnRoundedIcon from '@material-ui/icons/FlashOnRounded';
 import FormatSizeRoundedIcon from '@material-ui/icons/FormatSizeRounded';
@@ -13,6 +13,7 @@ import AlternateEmailRoundedIcon from '@material-ui/icons/AlternateEmailRounded'
 
 import EmojiPicker from './EmojiPicker';
 import { BlockStyleControls, InlineStyleControls } from './Formater';
+import { EditorMode } from '..';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,6 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface MangoToolbarProps {
   editorState: EditorState;
   modifyMode?: boolean;
+  editorMode: EditorMode;
   onAddEmoji: (emoji: EmojiData) => void;
   onToggleInlineStyleType: (type: string) => void;
   onToggleBlockStyleType: (type: string) => void;
@@ -90,9 +92,14 @@ function MangoToolbar(props: MangoToolbarProps) {
       <div className={classes.format}>
         {onExtraButtonClick && (
           <React.Fragment>
-            <IconButton className={classes.button} onClick={onExtraButtonClick}>
-              <FlashOnRoundedIcon fontSize="small" />
-            </IconButton>
+            <Tooltip title="Extra Button">
+              <IconButton
+                className={classes.button}
+                onClick={onExtraButtonClick}
+              >
+                <FlashOnRoundedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
             <Divider orientation="vertical" style={{ height: '75%' }} />
           </React.Fragment>
         )}
@@ -122,23 +129,32 @@ function MangoToolbar(props: MangoToolbarProps) {
         />
       </div>
       <div className={classes.action}>
-        <IconButton className={classes.button}>
-          <FormatSizeRoundedIcon fontSize="small" />
-        </IconButton>
-        {!modifyMode && (
+        <Tooltip title="Formatter">
           <IconButton className={classes.button}>
-            <AlternateEmailRoundedIcon fontSize="small" />
+            <FormatSizeRoundedIcon fontSize="small" />
           </IconButton>
-        )}
-        <IconButton onClick={handleClickEmojiPicker} className={classes.button}>
-          <InsertEmoticonRoundedIcon fontSize="small" />
-        </IconButton>
+        </Tooltip>
         {!modifyMode && (
-          <React.Fragment>
+          <Tooltip title="Mention">
+            <IconButton className={classes.button}>
+              <AlternateEmailRoundedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title="Emoji">
+          <IconButton
+            onClick={handleClickEmojiPicker}
+            className={classes.button}
+          >
+            <InsertEmoticonRoundedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        {!modifyMode && (
+          <Tooltip title="File Upload">
             <IconButton onClick={onFileUploadClick} className={classes.button}>
               <AttachFileRoundedIcon fontSize="small" />
             </IconButton>
-          </React.Fragment>
+          </Tooltip>
         )}
       </div>
     </div>

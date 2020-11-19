@@ -14,6 +14,8 @@ import {
   AtomicBlockUtils,
 } from 'draft-js';
 import { UploadFile } from './Components/Preview';
+import { OrderedSet } from 'immutable';
+import { Mention } from './Components/MentionSuggestions';
 
 export function getSelectedBlockMap(editorState: EditorState) {
   const selectionState = editorState.getSelection();
@@ -307,4 +309,98 @@ export function insertUploadedFiles(
   });
 
   return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+}
+
+export interface WordAtResult {
+  word: string;
+  begin: number;
+  end: number;
+}
+
+export function getWordAt(string: string, position: number): WordAtResult {
+  const str = String(string);
+  const pos = Number(position) >>> 0;
+
+  const left = str.slice(0, pos + 1).search(/\S+$/);
+  const right = str.slice(pos).search(/\s/);
+
+  // The last word in the string is a special case.
+  if (right < 0) {
+    return {
+      word: str.slice(left),
+      begin: left,
+      end: str.length,
+    };
+  }
+
+  // Return the word, using the located bounds to extract it from the string.
+  return {
+    word: str.slice(left, right + pos),
+    begin: left,
+    end: right + pos,
+  };
+}
+
+export function getSearchText(
+  editorState: EditorState,
+  selection: SelectionState
+): WordAtResult {
+  const anchorKey = selection.getAnchorKey();
+  const anchorOffset = selection.getAnchorOffset() - 1;
+  const currentContent = editorState.getCurrentContent();
+  const currentBlock = currentContent.getBlockForKey(anchorKey);
+  const blockText = currentBlock.getText();
+
+  return getWordAt(blockText, anchorOffset);
+}
+
+export function insertMention(editorState: EditorState, mention: Mention) {
+  const contentState = editorState.getCurrentContent();
+  const contentStateWithEntity = contentState.createEntity(
+    'MENTION',
+    'IMMUTABLE',
+    { mention }
+  );
+
+  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+  const currentSelectionState = editorState.getSelection();
+  const { begin, end } = getSearchText(editorState, currentSelectionState);
+
+  const mentionTextSelection = currentSelectionState.merge({
+    anchorOffset: begin,
+    focusOffset: end,
+  });
+
+  let mentionReplacedContent = Modifier.replaceText(
+    editorState.getCurrentContent(),
+    mentionTextSelection,
+    `@${mention.name}`,
+    OrderedSet.of('MENTION'),
+    entityKey
+  );
+
+  const blockKey = mentionTextSelection.getAnchorKey();
+  const blockSize = editorState
+    .getCurrentContent()
+    .getBlockForKey(blockKey)
+    .getLength();
+  if (blockSize === end) {
+    mentionReplacedContent = Modifier.insertText(
+      mentionReplacedContent,
+      mentionReplacedContent.getSelectionAfter(),
+      ' '
+    );
+  }
+
+  const newEditorState = EditorState.push(
+    editorState,
+    mentionReplacedContent,
+    'insert-fragment'
+  );
+
+  return EditorState.forceSelection(
+    newEditorState,
+    mentionReplacedContent.getSelectionAfter()
+  );
 }

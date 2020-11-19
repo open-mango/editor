@@ -1,9 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
 import { EditorState } from 'draft-js';
+import { Map } from 'immutable';
 
-import { IconButton } from '@material-ui/core';
-import { orange } from '@material-ui/core/colors';
+import { IconButton, Tooltip } from '@material-ui/core';
+import { orange, indigo } from '@material-ui/core/colors';
 
 // inline style buttons
 import FormatBoldRoundedIcon from '@material-ui/icons/FormatBoldRounded';
@@ -35,26 +36,35 @@ export const styleMap = {
     paddingRight: 4,
     borderRadius: 4,
   },
+  MENTION: {
+    color: '#fff',
+    border: '1px solid rgba(0, 0, 0, 0.1)',
+    backgroundColor: indigo[200],
+    fontSize: '0.75rem',
+    paddingLeft: 4,
+    paddingRight: 4,
+    borderRadius: 4,
+  },
 };
 
 const BLOCK_TYPES = [
   {
-    label: 'BQ',
+    label: 'Block Quote',
     style: 'blockquote',
     component: <FormatIndentIncreaseRoundedIcon fontSize="small" />,
   },
   {
-    label: 'UL',
+    label: 'Unordered List',
     style: 'unordered-list-item',
     component: <FormatListBulletedRoundedIcon fontSize="small" />,
   },
   {
-    label: 'OL',
+    label: 'Ordered List',
     style: 'ordered-list-item',
     component: <FormatListNumberedRoundedIcon fontSize="small" />,
   },
   {
-    label: 'CB',
+    label: 'Code Block',
     style: 'code-block',
     component: <DeveloperModeRoundedIcon fontSize="small" />,
   },
@@ -62,27 +72,27 @@ const BLOCK_TYPES = [
 
 const INLINE_STYLES = [
   {
-    label: 'B',
+    label: 'Bold',
     style: 'BOLD',
     component: <FormatBoldRoundedIcon fontSize="small" />,
   },
   {
-    label: 'I',
+    label: 'Italic',
     style: 'ITALIC',
     component: <FormatItalicRoundedIcon fontSize="small" />,
   },
   {
-    label: 'S',
+    label: 'Strike Through',
     style: 'STRIKETHROUGH',
     component: <StrikethroughSRoundedIcon fontSize="small" />,
   },
   {
-    label: 'U',
+    label: 'Underline',
     style: 'UNDERLINE',
     component: <FormatUnderlinedRoundedIcon fontSize="small" />,
   },
   {
-    label: 'C',
+    label: 'Code',
     style: 'CODE',
     component: <CodeRoundedIcon fontSize="small" />,
   },
@@ -129,13 +139,11 @@ const StyleButton = ({
   };
 
   return (
-    <IconButton
-      className={styleClasses}
-      onMouseDown={handleToggle}
-      title={label}
-    >
-      {component}
-    </IconButton>
+    <Tooltip title={label}>
+      <IconButton className={styleClasses} onMouseDown={handleToggle}>
+        {component}
+      </IconButton>
+    </Tooltip>
   );
 };
 
@@ -192,3 +200,24 @@ export const BlockStyleControls = ({
     </div>
   );
 };
+
+export const blockRenderMap = Map({
+  unstyled: {
+    element: 'div',
+  },
+  'code-block': {
+    element: 'code',
+    wrapper: <pre spellCheck="false" />,
+  },
+  blockquote: {
+    element: 'blockquote',
+  },
+  'ordered-list-item': {
+    element: 'li',
+    wrapper: <ol />,
+  },
+  'unordered-list-item': {
+    element: 'li',
+    wrapper: <ul />,
+  },
+});
